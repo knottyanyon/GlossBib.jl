@@ -1,18 +1,25 @@
 using Documenter
 using Documenter: Remotes
-using DocumenterGlossip
+using GlossBib
+
+gls = GlossBibPlugin(
+    joinpath(@__DIR__, "src", "terms.bib"),
+    joinpath(@__DIR__, "src", "abbreviations.bib"),
+    joinpath(@__DIR__, "src", "symbols.bib"),
+)
 
 makedocs(;
-    modules=[DocumenterGlossip],
+    modules=[GlossBib],
     authors="knottyanyon",
-    sitename="DocumenterGlossip.jl",
-    repo=Remotes.GitHub("knottyanyon", "DocumenterGlossip.jl"),
+    sitename="GlossBib.jl",
+    repo=Remotes.GitHub("knottyanyon", "GlossBib.jl"),
     format=Documenter.HTML(;
-        canonical="https://knottyanyon.github.io/DocumenterGlossip.jl", edit_link="main"
+        canonical="https://knottyanyon.github.io/GlossBib.jl", edit_link="main"
     ),
-    pages=["Home" => "index.md"],
+    pages=["Home" => "index.md", "How to Use" => "howto.md"],
+    plugins=[gls],
 )
 
 if get(ENV, "CI", "false") == "true"
-    deploydocs(; repo="github.com/knottyanyon/DocumenterGlossip.jl", devbranch="main")
+    deploydocs(; repo="github.com/knottyanyon/GlossBib.jl", devbranch="main")
 end

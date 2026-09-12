@@ -1,27 +1,31 @@
-# DocumenterGlossip.jl
+# GlossBib.jl
 
-Glossary linking for [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) docs: pairs
-[Glossaries.jl](https://github.com/) docstring/code-term interpolation with a prose-tooltip
-linker for `{glossary:Term}` references in markdown.
+Glossary, abbreviation, and symbol linking for [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
+docs, in the style of [bib2gls](https://ctan.org/pkg/bib2gls)/`glossaries-extra`, following the
+plugin architecture of [DocumenterCitations.jl](https://github.com/JuliaDocs/DocumenterCitations.jl).
+
+Entries (key terms, abbreviations, symbols) are authored as bib2gls-style `.bib` records
+(`@entry`, `@abbreviation`, `@symbol`, `@index`) and referenced from markdown with
+`[key](@gls)` / `[display text](@gls key)` syntax. Only entries actually referenced in the docs
+are rendered, and only entries that are referenced get expanded — no external bib2gls/Java
+dependency, everything is reimplemented natively via `Bibliography.jl` and `MarkdownAST`.
 
 ## Usage
 
-In each module that wants docstring term interpolation, call `Glossaries.@Glossary()` yourself
-(per [Glossaries.jl](https://github.com/) conventions — this must live in the target module):
-
 ```julia
-module MyPackage
-using Glossaries
-Glossaries.@Glossary()
-include("glossary_terms.jl")
-end
+using Documenter, GlossBib
+
+gls = GlossBibPlugin("terms.bib", "abbreviations.bib", "symbols.bib")
+
+makedocs(; plugins=[gls], pages=[...])
 ```
 
-In `docs/make.jl`, before `makedocs`, rewrite prose `{glossary:Term}` references:
+```markdown
+An [mps](@gls) is a compressed state representation. See also [dmrg](@gls).
 
-```julia
-using DocumenterGlossip
-DocumenterGlossip.setup_glossary(joinpath(@__DIR__, "src"))
+\```@glossary
+\```
 ```
 
-Then in your markdown pages: `An {glossary:MPS} is a compressed state representation.`
+See the [documentation](https://knottyanyon.github.io/GlossBib.jl) for details,
+including LaTeX/`glossaries-extra` output via `glossaries_extra_preamble`.
