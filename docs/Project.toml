@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterGlossip = "d2b931d4-abbd-456c-a907-c3513416760c"
+
+[sources]
+DocumenterGlossip = {path = ".."}
