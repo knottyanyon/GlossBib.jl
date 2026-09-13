@@ -186,6 +186,8 @@ end
 
         symbols = read(joinpath(outdir, "glossary-symbols.tex"), String)
         @test occursin("type=symbols", symbols)
+        # symbol field is auto-wrapped in math mode for the LaTeX definition
+        @test occursin("name={\$χ\$}", symbols)
 
         print_tex = read(joinpath(outdir, "glossary-print.tex"), String)
         @test occursin("\\printunsrtglossary[type=main]", print_tex)

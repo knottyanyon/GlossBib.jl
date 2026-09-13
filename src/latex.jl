@@ -79,30 +79,31 @@ function format_latex_reference(::Val{S}, entry::GlossaryEntry, form::Symbol) wh
     return "\\gls{$key}"
 end
 
-# escape LaTeX-special characters in field text used inside \newglossaryentry{}
-function _latex_escape(s::AbstractString)
-    s = replace(s, "\\" => "\\textbackslash{}")
-    for (c, esc) in
-        ("&" => "\\&", "%" => "\\%", "\$" => "\\\$", "#" => "\\#", "_" => "\\_",
-        "{" => "\\{", "}" => "\\}", "~" => "\\textasciitilde{}", "^" => "\\textasciicircum{}")
-        s = replace(s, c => esc)
-    end
-    return s
-end
+"""Emit a `\\newglossaryentry{...}`/`\\newabbreviation{...}` definition for `entry`.
 
-"""Emit a `\\newglossaryentry{...}`/`\\newabbreviation{...}` definition for `entry`."""
+Field values are inserted verbatim, matching real bib2gls/BibTeX convention: a `.bib`
+field's value is raw LaTeX source, not plain text needing escaping. The `.bib` file's
+author is responsible for escaping literal special characters themselves (e.g. `50\\%`
+for a literal percent sign) exactly as with any hand-written LaTeX/BibTeX source.
+
+For `:symbol` entries specifically, the `symbol` field is additionally wrapped in
+`\$...\$` (math mode) — bib2gls's own convention is that symbol entries hold math content
+(traditionally authored as `symbol={\\ensuremath{...}}`), so this spares `.bib` authors
+from writing the math-mode wrapper themselves for the common case of a bare symbol like
+`symbol={\\chi}` or `symbol={χ}`.
+"""
 function glossaries_extra_definition(entry::GlossaryEntry)
     key = entry.key
-    name = _latex_escape(entry_name(entry))
-    desc = _latex_escape(entry_description(entry))
+    name = entry_name(entry)
+    desc = entry_description(entry)
     isempty(desc) && (desc = name)
     if entry.category == :abbreviation
-        long = _latex_escape(entry_long(entry))
-        short = _latex_escape(entry_short(entry))
+        long = entry_long(entry)
+        short = entry_short(entry)
         return "\\newabbreviation{$key}{$short}{$long}\n"
     elseif entry.category == :symbol
-        sym = _latex_escape(get(entry, "symbol", name))
-        return "\\newglossaryentry{$key}{type=symbols,name={$sym},description={$desc}}\n"
+        sym = get(entry, "symbol", name)
+        return "\\newglossaryentry{$key}{type=symbols,name={\$$sym\$},description={$desc}}\n"
     elseif entry.category == :index
         return "\\newglossaryentry{$key}{type=index,name={$name},description={$desc}}\n"
     else

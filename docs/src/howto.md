@@ -29,6 +29,16 @@ sense for your project (one file per category is a common convention, but not re
 
 Supported entry types: `@entry` (key terms), `@abbreviation`, `@symbol`, and `@index`.
 
+Field values are raw LaTeX source, exactly as in real bib2gls/BibTeX files — they're inserted
+verbatim into both the HTML markdown pipeline and the generated `\newglossaryentry{...}`/
+`\newabbreviation{...}` LaTeX definitions, never escaped for you (so a literal `%`, `&`, `_`,
+`#`, `~`, or `^` character needs to be escaped by you in the `.bib` file, e.g. `50\%`, the same
+way you would in any hand-written LaTeX/BibTeX source). The one exception: a `@symbol` entry's
+`symbol` field is automatically wrapped in `$...$` for the LaTeX definition, since bib2gls's own
+convention is that symbol entries hold math content — so `symbol = {χ}` or `symbol = {\chi}`
+above renders as a properly math-italic χ in the PDF (via a math font with Greek coverage, e.g.
+`unicode-math` + `\setmathfont{...}`) without needing to write `\ensuremath{}` yourself.
+
 ## 2. Register the plugin
 
 Construct a [`GlossBibPlugin`](@ref) from one or more resource files and pass it to
